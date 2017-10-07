@@ -5,7 +5,7 @@ ALIASES:
     - news
 events:
   Hurricane Maria:
-    cta: 'Together, we can make a difference. Consider donating to support the victims of Hurricane Maria and help rebuild Puerto Rico:'
+    cta: 'Please consider donating to support the victims of Hurricane Maria and help rebuild Puerto Rico:'
     subreddits:
      - *subreddits
      # uncomment below to list custom subreddits for this event

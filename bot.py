@@ -7,21 +7,24 @@ from os import environ, path
 from dotenv import load_dotenv
 from pdb import set_trace as bp
 import sys
+import time
 
 dotenv_path = path.join(path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 class Bot:
     EVENT = "Hurricane Maria"
-    DB = 'commented.txt'
 
     def __init__(self):
         self.debug()
         mode = [True for arg in sys.argv if arg == '-d']
+        self.dry_run = False
         if (mode == [True]) :
             self.dry_run = mode
+            self.DB = 'commented_test.txt'
             print('executing a dry run...')
         else:
+            self.DB = 'commented.txt'
             answer = input('starting in production mode. should we continue? ')
             if(answer.lower() == 'n'):
                 self.dry_run = False
@@ -31,7 +34,7 @@ class Bot:
         self.reddit = self.authenticate()
         print('Authenticated', self.reddit)
         self.config = self.load_config()
-        self.db = open(self.DB, 'a')
+        self.store = open(self.DB, 'a')
         self.scan()
 
     def debug(self):
@@ -54,7 +57,6 @@ class Bot:
 
     def scan(self):
         flat_subreddits = list(itertools.chain.from_iterable(self.config['subreddits']))
-        print(flat_subreddits)
         for sub in flat_subreddits:
              subreddit = self.reddit.subreddit(sub).hot(limit=100)
              for submission in subreddit:
@@ -86,15 +88,18 @@ class Bot:
             text = self.comment_doc().format(cta=self.config['cta'], links=self.outbound_links())
             if(not self.dry_run):
                 print('commenting in production mode')
-                # post.reply(text)
+                post.reply(text)
+                time.sleep(600)
+                print('10 minutes have passed')
             else:
                 print('commenting in dev mode')
+                # print(text)
             self.save_to_db(post.id)
 
     def save_to_db(self, id):
         # print('id to save', id)
         self.comments_for_run += 1
-        self.db.write(id)
+        self.store.write('%r\n' %id)
 
     def outbound_links(self):
         str = ""
