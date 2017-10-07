@@ -1,0 +1,3 @@
+# !/bin/bash
+
+python3 ./bot.py -d > log/stdout.txt 2> log/stderr.txt

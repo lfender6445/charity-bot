@@ -1,0 +1,23 @@
+---
+ALIASES:
+  - subreddits: &subreddits
+    - worldnews
+    - news
+events:
+  Hurricane Maria:
+    cta: 'Together, we can make a difference. Consider donating to support the victims of Hurricane Maria and help rebuild Puerto Rico:'
+    subreddits:
+     - *subreddits
+     # uncomment below to list custom subreddits for this event
+     # - - foo
+     #   - bar
+    items_to_match_title_on:
+    - Hurricane Maria
+    - Puerto Rico
+    - San Juan
+    - Ponce
+    charities:
+    - title: United for Puerto Rico
+      href: http://unidosporpuertorico.com/en/
+    - title: Global Giving
+      href: https://www.globalgiving.org/projects/hurricane-maria-caribbean-relief-fund/
