@@ -1,6 +1,6 @@
 # charity-bot-v1
 
-a configurable reddit-bot to encourage philanthropy and help those in need
+a configurable [reddit-bot](https://www.reddit.com/user/charity-bot-v1/) to encourage philanthropy and help those in need
 
 contributions are welcome
 
