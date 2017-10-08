@@ -1,3 +1,9 @@
+# charity-bot-v1
+
+a configurable reddit-bot to encourage philanthropy and help those in need
+
+contributions are welcome
+
 # setup
 
 ```bash
