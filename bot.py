@@ -17,6 +17,8 @@ class Bot:
 
     def __init__(self):
         self.debug()
+        self.feedback_link = "https://www.reddit.com/message/compose/?to=charity-bot-v1&subject=Feedback"
+        self.github_link = "https://github.com/lfender6445/charity-bot"
         mode = [True for arg in sys.argv if arg == '-d']
         self.dry_run = False
         if (mode == [True]) :
@@ -58,25 +60,29 @@ class Bot:
     def scan(self):
         flat_subreddits = list(itertools.chain.from_iterable(self.config['subreddits']))
         for sub in flat_subreddits:
-             subreddit = self.reddit.subreddit(sub).hot(limit=100)
-             for submission in subreddit:
-                 title = submission.title.lower()
-                 matchers = [item.lower() for item in self.config['items_to_match_title_on']]
-                 # MATCHERS ['hurricane maria', 'puerto rico', 'san juan', 'ponce']
-                 for match in matchers:
-                     if match in title:
-                         time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                         print('-----------------', time)
-                         link = 'https://www.reddit.com{perm}'.format(perm=submission.permalink)
-                         print('link: ', link)
-                         should_add_comment = input("allow charity bot to comment? Y or N ")
-                         if(should_add_comment.lower() == 'y'):
-                            self.reply(submission)
-                            print('comment success at ', time)
-                         else:
-                            print('bot was denied comment operation')
+            subreddit = self.reddit.subreddit(sub).hot(limit=100)
+            for submission in subreddit:
+                title = submission.title.lower()
+                matchers = [item.lower() for item in self.config['items_to_match_title_on']]
+                # MATCHERS ['hurricane maria', 'puerto rico', 'san juan', 'ponce']
+                for match in matchers:
+                    if match in title:
+                        time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        print('-----------------', time)
+                        link = 'https://www.reddit.com{perm}'.format(perm=submission.permalink)
+                        print('title: ', submission.title)
+                        print('link: ', link)
+                        self.ask_to_comment(submission, time)
+                        # self.reply(submission)
 
         print('--- total comments for bot run', self.comments_for_run)
+
+    def ask_to_comment(self, post, time):
+        should_add_comment = input("allow charity bot to comment? Y or N ")
+        if(should_add_comment.lower() == 'y'):
+            self.reply(post)
+        else:
+            print('bot was denied comment operation')
 
     def reply(self, post):
         # id = '73mwak'
@@ -85,16 +91,19 @@ class Bot:
         if post.id in open(self.DB).read():
             print("already commented. skipping comment operation for", post.id)
         else:
-            text = self.comment_doc().format(cta=self.config['cta'], links=self.outbound_links())
+            text = self.comment_doc().format(cta=self.config['cta'], links=self.outbound_links(), feedback_text=self.feedback_text())
             if(not self.dry_run):
                 print('commenting in production mode')
                 post.reply(text)
                 time.sleep(600)
-                print('10 minutes have passed')
+                print('comment success, 10 minutes have passed')
             else:
                 print('commenting in dev mode')
                 # print(text)
             self.save_to_db(post.id)
+
+    def feedback_text(self):
+        return "I am a bot - if I did something wrong, [let me know]({link}) | [source]({gh})".format(link=self.feedback_link, gh=self.github_link)
 
     def save_to_db(self, id):
         # print('id to save', id)
@@ -115,6 +124,8 @@ class Bot:
 """
 {cta}\n\n
 {links}
+\n
+{feedback_text}
 """
     # def notify(self):
     #   # subreddit = reddit.subreddit('worldnews')

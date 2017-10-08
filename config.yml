@@ -3,6 +3,7 @@ ALIASES:
   - subreddits: &subreddits
     - worldnews
     - news
+    - politics
 events:
   Hurricane Maria:
     cta: 'Please consider donating to support the victims of Hurricane Maria and help rebuild Puerto Rico:'
