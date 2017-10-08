@@ -9,36 +9,37 @@ from pdb import set_trace as bp
 import sys
 import time
 
-dotenv_path = path.join(path.dirname(__file__), '.env')
-load_dotenv(dotenv_path)
-
-
 class Bot:
     EVENT = "Hurricane Maria"
+    GITHUB_LINK = "https://github.com/lfender6445/charity-bot"
+    FEEDBACK_LINK = "https://www.reddit.com/message/compose/?to=charity-bot-v1&subject=Feedback"
 
     def __init__(self):
-        self.debug()
-        self.feedback_link = "https://www.reddit.com/message/compose/?to=charity-bot-v1&subject=Feedback"
-        self.github_link = "https://github.com/lfender6445/charity-bot"
+        self.load_env()
         mode = [True for arg in sys.argv if arg == '-d']
-        self.dry_run = False
+        self.development_mode = False
         if (mode == [True]):
-            self.dry_run = mode
             self.DB = 'commented_test.txt'
-            print('executing a dry run...')
+            self.debug()
+            self.development_mode = mode
+            print('executing in development mode...')
         else:
             self.DB = 'commented.txt'
             answer = input('starting in production mode. should we continue? ')
             if (answer.lower() == 'n'):
-                self.dry_run = False
+                self.development_mode = False
                 print('... exiting application')
                 sys.exit()
         self.comments_for_run = 0
         self.reddit = self.authenticate()
-        print('Authenticated', self.reddit)
+        print('authenticated', self.reddit)
         self.config = self.load_config()
         self.store = open(self.DB, 'a')
         self.scan()
+
+    def self.load_env():
+        dotenv_path = path.join(path.dirname(__file__), '.env')
+        load_dotenv(dotenv_path)
 
     def debug(self):
         handler = logging.StreamHandler()
@@ -81,10 +82,10 @@ class Bot:
                             perm=submission.permalink)
                         print('title: ', submission.title)
                         print('link: ', link)
-                        self.ask_to_comment(submission, time)
-                        # self.reply(submission)
+                        # self.ask_to_comment(submission, time)
+                        self.reply(submission)
 
-        print('--- total comments for bot run', self.comments_for_run)
+        print('total comments for bot run', self.comments_for_run)
 
     def ask_to_comment(self, post, time):
         should_add_comment = input("allow charity bot to comment? Y or N ")
@@ -94,9 +95,6 @@ class Bot:
             print('bot was denied comment operation')
 
     def reply(self, post):
-        # id = '73mwak'
-        # is the id in the db?
-        # else comment and save to db
         if post.id in open(self.DB).read():
             print("already commented. skipping comment operation for", post.id)
         else:
@@ -104,19 +102,19 @@ class Bot:
                 cta=self.config['cta'],
                 links=self.outbound_links(),
                 feedback_text=self.feedback_text())
-            if (not self.dry_run):
+            if (not self.development_mode):
                 print('commenting in production mode')
                 post.reply(text)
                 time.sleep(600)
-                print('comment success, 10 minutes have passed')
+                print('comment success')
             else:
-                print('commenting in dev mode')
+                print('comments are disabled in development mode')
                 # print(text)
             self.save_to_db(post.id)
 
     def feedback_text(self):
         return "I am a bot - if I did something wrong, [let me know]({link}) | [source]({gh})".format(
-            link=self.feedback_link, gh=self.github_link)
+            link=self.FEEDBACK_LINK, gh=self.GITHUB_LINK)
 
     def save_to_db(self, id):
         # print('id to save', id)
@@ -141,22 +139,4 @@ class Bot:
 \n
 {feedback_text}
 """
-
-    # def notify(self):
-    #   # subreddit = reddit.subreddit('worldnews')
-    #   # for submission in subreddit.stream.submissions():
-    #   # use dir(submission)
-    #   # OR pprint(vars(submission))
-    #   subreddit = self.reddit.subreddit('worldnews').hot(limit=100)
-    #   for submission in subreddit:
-    #       title = submission.title.lower()
-    #       match = 'Puerto Rico'.lower()
-    #       if match in title:
-    #           # bp()
-    #           # pprint(vars(submission))
-    #           print(submission.title, submission.permalink, submission.url)
-    #           msg = '[Puerto Rico](reddit.com%s)' % submission.permalink
-    #           self.reddit.redditor(environ.get('USER_TO_NOTIFY')).message(title[0:100], msg)
-
-
 bot = Bot()
