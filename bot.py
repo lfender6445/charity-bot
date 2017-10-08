@@ -12,6 +12,7 @@ import time
 dotenv_path = path.join(path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
+
 class Bot:
     EVENT = "Hurricane Maria"
 
@@ -21,14 +22,14 @@ class Bot:
         self.github_link = "https://github.com/lfender6445/charity-bot"
         mode = [True for arg in sys.argv if arg == '-d']
         self.dry_run = False
-        if (mode == [True]) :
+        if (mode == [True]):
             self.dry_run = mode
             self.DB = 'commented_test.txt'
             print('executing a dry run...')
         else:
             self.DB = 'commented.txt'
             answer = input('starting in production mode. should we continue? ')
-            if(answer.lower() == 'n'):
+            if (answer.lower() == 'n'):
                 self.dry_run = False
                 print('... exiting application')
                 sys.exit()
@@ -48,28 +49,36 @@ class Bot:
 
     def load_config(self):
         with open("config.yml", "r") as stream:
-            conf =  yaml.load(stream)
+            conf = yaml.load(stream)
             return conf['events'][self.EVENT]
 
     def authenticate(self):
-      reddit = praw.Reddit(user_agent='Python:charity-bot-v1:v1 (by /u/lfender6445)',
-                           client_id=environ.get('CLIENT_ID'), client_secret=environ.get('CLIENT_SECRET'),
-                           username=environ.get('USERNAME'), password=environ.get('PASSWORD'))
-      return reddit
+        reddit = praw.Reddit(
+            user_agent='Python:charity-bot-v1:v1 (by /u/lfender6445)',
+            client_id=environ.get('CLIENT_ID'),
+            client_secret=environ.get('CLIENT_SECRET'),
+            username=environ.get('USERNAME'),
+            password=environ.get('PASSWORD'))
+        return reddit
 
     def scan(self):
-        flat_subreddits = list(itertools.chain.from_iterable(self.config['subreddits']))
+        flat_subreddits = list(
+            itertools.chain.from_iterable(self.config['subreddits']))
         for sub in flat_subreddits:
             subreddit = self.reddit.subreddit(sub).hot(limit=100)
             for submission in subreddit:
                 title = submission.title.lower()
-                matchers = [item.lower() for item in self.config['items_to_match_title_on']]
+                matchers = [
+                    item.lower()
+                    for item in self.config['items_to_match_title_on']
+                ]
                 # MATCHERS ['hurricane maria', 'puerto rico', 'san juan', 'ponce']
                 for match in matchers:
                     if match in title:
                         time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         print('-----------------', time)
-                        link = 'https://www.reddit.com{perm}'.format(perm=submission.permalink)
+                        link = 'https://www.reddit.com{perm}'.format(
+                            perm=submission.permalink)
                         print('title: ', submission.title)
                         print('link: ', link)
                         self.ask_to_comment(submission, time)
@@ -79,7 +88,7 @@ class Bot:
 
     def ask_to_comment(self, post, time):
         should_add_comment = input("allow charity bot to comment? Y or N ")
-        if(should_add_comment.lower() == 'y'):
+        if (should_add_comment.lower() == 'y'):
             self.reply(post)
         else:
             print('bot was denied comment operation')
@@ -91,8 +100,11 @@ class Bot:
         if post.id in open(self.DB).read():
             print("already commented. skipping comment operation for", post.id)
         else:
-            text = self.comment_doc().format(cta=self.config['cta'], links=self.outbound_links(), feedback_text=self.feedback_text())
-            if(not self.dry_run):
+            text = self.comment_doc().format(
+                cta=self.config['cta'],
+                links=self.outbound_links(),
+                feedback_text=self.feedback_text())
+            if (not self.dry_run):
                 print('commenting in production mode')
                 post.reply(text)
                 time.sleep(600)
@@ -103,19 +115,21 @@ class Bot:
             self.save_to_db(post.id)
 
     def feedback_text(self):
-        return "I am a bot - if I did something wrong, [let me know]({link}) | [source]({gh})".format(link=self.feedback_link, gh=self.github_link)
+        return "I am a bot - if I did something wrong, [let me know]({link}) | [source]({gh})".format(
+            link=self.feedback_link, gh=self.github_link)
 
     def save_to_db(self, id):
         # print('id to save', id)
         self.comments_for_run += 1
-        self.store.write('%r\n' %id)
+        self.store.write('%r\n' % id)
 
     def outbound_links(self):
         str = ""
         for link in self.config['charities']:
             title = link['title']
             href = link['href']
-            bullet = '- [{title}]({href}){n}'.format(title=title, href=href, n="\n")
+            bullet = '- [{title}]({href}){n}'.format(
+                title=title, href=href, n="\n")
             str += bullet
         return str
 
@@ -127,6 +141,7 @@ class Bot:
 \n
 {feedback_text}
 """
+
     # def notify(self):
     #   # subreddit = reddit.subreddit('worldnews')
     #   # for submission in subreddit.stream.submissions():
