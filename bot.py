@@ -2,14 +2,16 @@ import praw
 import logging
 import yaml
 import itertools
+import sys
+import time
 from datetime import datetime
 from os import environ, path
 from dotenv import load_dotenv
 from pdb import set_trace as bp
-import sys
-import time
+
 
 class Bot:
+    # TOOD: Loop events from config rather than specifying as const
     EVENT = "Hurricane Maria"
     GITHUB_LINK = "https://github.com/lfender6445/charity-bot"
     FEEDBACK_LINK = "https://www.reddit.com/message/compose/?to=charity-bot-v1&subject=Feedback"
@@ -20,7 +22,6 @@ class Bot:
         if (self.development_mode):
             self.DB = 'commented_test.txt'
             self.debug()
-            self.development_mode = mode
             print('executing in development mode...')
         else:
             self.DB = 'commented.txt'
@@ -68,24 +69,24 @@ class Bot:
         for sub in flat_subreddits:
             subreddit = self.reddit.subreddit(sub).hot(limit=100)
             for submission in subreddit:
-                title = submission.title.lower()
-                matchers = [
-                    item.lower()
-                    for item in self.config['items_to_match_title_on']
-                ]
-                # MATCHERS ['hurricane maria', 'puerto rico', 'san juan', 'ponce']
-                for match in matchers:
-                    if match in title:
-                        time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        print('-----------------', time)
-                        link = 'https://www.reddit.com{perm}'.format(
-                            perm=submission.permalink)
-                        print('title: ', submission.title)
-                        print('link: ', link)
-                        # self.ask_to_comment(submission, time)
-                        self.reply(submission)
-
+                self.process_submission(submission)
         print('total comments for bot run', self.comments_for_run)
+
+    def process_submission(self, post):
+        title = post.title.lower()
+        matchers = [
+            item.lower() for item in self.config['items_to_match_title_on']
+        ]
+        for match in matchers:
+            if match in title:
+                time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                link = 'https://www.reddit.com{perm}'.format(
+                    perm=post.permalink)
+                print('-----------------', time)
+                print('title: ', post.title)
+                print('link: ', link)
+                # self.ask_to_comment(post, time)
+                self.reply(post)
 
     def ask_to_comment(self, post, time):
         should_add_comment = input("allow charity bot to comment? Y or N ")
@@ -102,13 +103,13 @@ class Bot:
                 cta=self.config['cta'],
                 links=self.outbound_links(),
                 feedback_text=self.feedback_text())
-            if (not self.development_mode):
+            if (self.development_mode):
+                print('comments are disabled in development mode')
+            else:
                 print('commenting in production mode')
                 post.reply(text)
                 time.sleep(600)
                 print('comment success')
-            else:
-                print('comments are disabled in development mode')
                 # print(text)
             self.save_to_db(post.id)
 
@@ -117,7 +118,6 @@ class Bot:
             link=self.FEEDBACK_LINK, gh=self.GITHUB_LINK)
 
     def save_to_db(self, id):
-        # print('id to save', id)
         self.comments_for_run += 1
         self.store.write('%r\n' % id)
 
@@ -139,4 +139,6 @@ class Bot:
 \n
 {feedback_text}
 """
+
+
 bot = Bot()
