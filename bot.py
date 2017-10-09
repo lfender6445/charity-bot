@@ -16,28 +16,27 @@ class Bot:
 
     def __init__(self):
         self.load_env()
-        mode = [True for arg in sys.argv if arg == '-d']
-        self.development_mode = False
-        if (mode == [True]):
+        self.development_mode = '-d' in sys.argv
+        if (self.development_mode):
             self.DB = 'commented_test.txt'
             self.debug()
             self.development_mode = mode
             print('executing in development mode...')
         else:
             self.DB = 'commented.txt'
-            answer = input('starting in production mode. should we continue? ')
-            if (answer.lower() == 'n'):
-                self.development_mode = False
-                print('... exiting application')
-                sys.exit()
+            print('executing in production mode...')
+            # answer = input('starting in production mode. should we continue? ')
+            # if (answer.lower() == 'n'):
+            #     self.development_mode = False
+            #     print('... exiting application')
+            #     sys.exit()
         self.comments_for_run = 0
         self.reddit = self.authenticate()
-        print('authenticated', self.reddit)
         self.config = self.load_config()
         self.store = open(self.DB, 'a')
         self.scan()
 
-    def self.load_env():
+    def load_env(self):
         dotenv_path = path.join(path.dirname(__file__), '.env')
         load_dotenv(dotenv_path)
 
@@ -60,6 +59,7 @@ class Bot:
             client_secret=environ.get('CLIENT_SECRET'),
             username=environ.get('USERNAME'),
             password=environ.get('PASSWORD'))
+        print('authenticated', reddit)
         return reddit
 
     def scan(self):
