@@ -67,7 +67,7 @@ class Bot:
         flat_subreddits = list(
             itertools.chain.from_iterable(self.config['subreddits']))
         for sub in flat_subreddits:
-            subreddit = self.reddit.subreddit(sub).hot(limit=300)
+            subreddit = self.reddit.subreddit(sub).new(limit=300)
             for submission in subreddit:
                 self.process_submission(submission)
         print('total comments for bot run', self.comments_for_run)
