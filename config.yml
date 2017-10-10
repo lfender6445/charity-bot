@@ -3,7 +3,7 @@ ALIASES:
   - subreddits: &subreddits
     - worldnews
     - news
-    - politics
+    # - politics # banned on 10/09/17
 events:
   Hurricane Maria:
     cta: 'Please consider donating to support the victims of Hurricane Maria and help rebuild Puerto Rico:'

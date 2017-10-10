@@ -17,11 +17,11 @@ class Bot:
     FEEDBACK_LINK = "https://www.reddit.com/message/compose/?to=charity-bot-v1&subject=Feedback"
 
     def __init__(self):
+        self.debug()
         self.load_env()
         self.development_mode = '-d' in sys.argv
         if (self.development_mode):
             self.DB = 'commented_test.txt'
-            self.debug()
             print('executing in development mode...')
         else:
             self.DB = 'commented.txt'
@@ -67,7 +67,7 @@ class Bot:
         flat_subreddits = list(
             itertools.chain.from_iterable(self.config['subreddits']))
         for sub in flat_subreddits:
-            subreddit = self.reddit.subreddit(sub).hot(limit=100)
+            subreddit = self.reddit.subreddit(sub).hot(limit=300)
             for submission in subreddit:
                 self.process_submission(submission)
         print('total comments for bot run', self.comments_for_run)
