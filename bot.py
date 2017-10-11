@@ -11,31 +11,33 @@ from pdb import set_trace as bp
 
 
 class Bot:
-    # TOOD: Loop events from config rather than specifying as const
-    EVENT = "Hurricane Maria"
     GITHUB_LINK = "https://github.com/lfender6445/charity-bot"
     FEEDBACK_LINK = "https://www.reddit.com/message/compose/?to=charity-bot-v1&subject=Feedback"
 
     def __init__(self):
-        self.debug()
-        self.load_env()
+        self.setup_database()
+        self.connect_to_reddit_and_scan()
+
+    def setup_database(self):
         self.development_mode = '-d' in sys.argv
+        self.comments_for_run = 0
         if (self.development_mode):
             self.DB = 'commented_test.txt'
-            print('executing in development mode...')
+            print('executing in development mode... comments disabled')
         else:
             self.DB = 'commented.txt'
-            print('executing in production mode...')
-            # answer = input('starting in production mode. should we continue? ')
-            # if (answer.lower() == 'n'):
-            #     self.development_mode = False
-            #     print('... exiting application')
-            #     sys.exit()
-        self.comments_for_run = 0
+            print('executing in production mode... comments ARE enabled')
+        self.database = open(self.DB, 'a')
+
+    def connect_to_reddit_and_scan(self):
+        self.connect_to_reddit()
+        self.scan()
+
+    def connect_to_reddit(self):
+        self.load_env()
+        self.debug()
         self.reddit = self.authenticate()
         self.config = self.load_config()
-        self.store = open(self.DB, 'a')
-        self.scan()
 
     def load_env(self):
         dotenv_path = path.join(path.dirname(__file__), '.env')
@@ -50,8 +52,7 @@ class Bot:
 
     def load_config(self):
         with open("config.yml", "r") as stream:
-            conf = yaml.load(stream)
-            return conf['events'][self.EVENT]
+            return yaml.load(stream)['events']
 
     def authenticate(self):
         reddit = praw.Reddit(
@@ -60,22 +61,24 @@ class Bot:
             client_secret=environ.get('CLIENT_SECRET'),
             username=environ.get('USERNAME'),
             password=environ.get('PASSWORD'))
-        print('authenticated', reddit)
         return reddit
 
     def scan(self):
-        flat_subreddits = list(
-            itertools.chain.from_iterable(self.config['subreddits']))
-        for sub in flat_subreddits:
-            subreddit = self.reddit.subreddit(sub).new(limit=300)
-            for submission in subreddit:
-                self.process_submission(submission)
-        print('total comments for bot run', self.comments_for_run)
+        for event in self.config.keys():
+            print(event)
+            self.event = self.config[event]
+            flat_subreddits = list(
+                itertools.chain.from_iterable(self.event['subreddits']))
+            for sub in flat_subreddits:
+                subreddit = self.reddit.subreddit(sub).new(limit=300)
+                for submission in subreddit:
+                    self.process_submission(submission)
+            print('total comments for bot run', self.comments_for_run)
 
     def process_submission(self, post):
         title = post.title.lower()
         matchers = [
-            item.lower() for item in self.config['items_to_match_title_on']
+            item.lower() for item in self.event['items_to_match_title_on']
         ]
         for match in matchers:
             if match in title:
@@ -100,7 +103,7 @@ class Bot:
             print("already commented. skipping comment operation for", post.id)
         else:
             text = self.comment_doc().format(
-                cta=self.config['cta'],
+                cta=self.event['cta'],
                 links=self.outbound_links(),
                 feedback_text=self.feedback_text())
             if (self.development_mode):
@@ -119,11 +122,11 @@ class Bot:
 
     def save_to_db(self, id):
         self.comments_for_run += 1
-        self.store.write('%r\n' % id)
+        self.database.write('%r\n' % id)
 
     def outbound_links(self):
         str = ""
-        for link in self.config['charities']:
+        for link in self.event['charities']:
             title = link['title']
             href = link['href']
             bullet = '- [{title}]({href}){n}'.format(
@@ -139,6 +142,13 @@ class Bot:
 \n
 {feedback_text}
 """
+
+    # def ask_to_run_script(self):
+    # answer = input('starting in production mode. should we continue? ')
+    # if (answer.lower() == 'n'):
+    #     self.development_mode = False
+    #     print('... exiting application')
+    #     sys.exit()
 
 
 bot = Bot()
