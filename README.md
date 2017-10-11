@@ -1,19 +1,19 @@
 # charity-bot-v1
 
-a configurable [reddit-bot](https://www.reddit.com/user/charity-bot-v1/) to encourage philanthropy and help those in need
+A configurable [reddit-bot](https://www.reddit.com/user/charity-bot-v1/) to encourage philanthropy and help those in need
 
-the [config.yml](https://github.com/lfender6445/charity-bot/blob/master/config.yml) 
-is what drives the bot to post and comment on threads related to your cause.
+The [config.yml](https://github.com/lfender6445/charity-bot/blob/master/config.yml) 
+makes it easy to add, remove, and edit new charitable causes.  
 
-contributions are encouraged and welcome
+Contributions are encouraged and welcome
 
 ## setup
 - `git clone https://github.com/lfender6445/charity-bot`
 - install dependencies
   - `pip3 install -r requirements.txt`
-- Rename `.env.example` to `.env`
+- rename `.env.example` to `.env`
   - `mv .env.example .env`
-- Update .env to include your bots `USERNAME`, `PASSWORD`, `CLIENT_SECRET`, and `CLIENT_ID`
+- update .env to include your bots `USERNAME`, `PASSWORD`, `CLIENT_SECRET`, and `CLIENT_ID`
 
 ### starting the bot in dev mode
 
