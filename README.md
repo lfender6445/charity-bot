@@ -7,7 +7,7 @@ is what drives the bot to post and comment on threads related to your cause.
 
 contributions are encouraged and welcome
 
-# setup
+## setup
 - `git clone https://github.com/lfender6445/charity-bot`
 - install dependencies
   - `pip3 install -r requirements.txt`
@@ -15,20 +15,20 @@ contributions are encouraged and welcome
   - `mv .env.example .env`
 - Update .env to include your bots `USERNAME`, `PASSWORD`, `CLIENT_SECRET`, and `CLIENT_ID`
 
-# dev mode
+### starting the bot in dev mode
 
 you can start the bot in dev mode by running: 
 
 `./bin/start-dev`
 
-developer mode does NOT apply comments to reddit posts, 
+**developer mode does NOT apply comments to reddit posts**, 
 but gives you an idea of how your bot configuration will work by logging
 important information about the scan.
 
-# production mode
+### starting the bot in production mode
 
 you can start the bot in prod mode by running: 
 
 `./bin/start-prod`
 
-prod mode DOES apply comments to reddit posts and should be used with caution
+**prod mode DOES apply comments to reddit posts** and should be used with caution
