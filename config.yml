@@ -1,24 +1,29 @@
 ---
 ALIASES:
+  # list subreddits here you want to crawl for ALL of your events
   - subreddits: &subreddits
     - worldnews
     - news
-    # - politics # banned on 10/09/17
+    # - politics # this bot was banned from politics on 10/09/17
+# add events and causes here
 events:
   Hurricane Maria:
-    cta: 'Please consider donating to support the victims of Hurricane Maria and help rebuild Puerto Rico:'
     subreddits:
-     - *subreddits
-     # uncomment below to list custom subreddits for this event
-     # - - foo
-     #   - bar
+      - *subreddits
+      # uncomment the lines below to add custom subreddits for this event
+      # - - foo
+      #   - bar
+    # the bot works by matching title text against a list of keywords
     items_to_match_title_on:
-    - Hurricane Maria
-    - Puerto Rico
-    - San Juan
-    - Ponce
+      - Hurricane Maria
+      - Puerto Rico
+      - San Juan
+      - Ponce
+    # cta is the leading text in your comment reply
+    cta: 'Please consider donating to support the victims of Hurricane Maria and help rebuild Puerto Rico:'
+    # list the charitiy links and link text
     charities:
-    - title: United for Puerto Rico
-      href: http://unidosporpuertorico.com/en/
-    - title: Global Giving
-      href: https://www.globalgiving.org/projects/hurricane-maria-caribbean-relief-fund/
+      - title: United for Puerto Rico
+        href: http://unidosporpuertorico.com/en/
+      - title: Global Giving
+        href: https://www.globalgiving.org/projects/hurricane-maria-caribbean-relief-fund/
