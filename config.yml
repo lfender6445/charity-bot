@@ -3,7 +3,7 @@ ALIASES:
   # list subreddits here you want to crawl for ALL of your events
   - subreddits: &subreddits
     - worldnews
-    - news
+    # - news # this bot was banned from news on 10/11/17
     # - politics # this bot was banned from politics on 10/09/17
 # add events and causes here
 events:
