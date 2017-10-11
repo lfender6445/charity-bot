@@ -1,6 +1,6 @@
-# charity-bot-v1
+# charity-bot
 
-A configurable [reddit-bot](https://www.reddit.com/user/charity-bot-v1/) to encourage philanthropy and help those in need
+A configurable [reddit-bot /u/charity-bot-v1](https://www.reddit.com/user/charity-bot-v1/) to encourage philanthropy and help those in need
 
 The [config.yml](https://github.com/lfender6445/charity-bot/blob/master/config.yml) 
 makes it easy to add, remove, and edit new charitable causes.  
