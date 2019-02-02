@@ -52,7 +52,7 @@ class Bot:
 
     def load_config(self):
         with open("config.yml", "r") as stream:
-            return yaml.load(stream)['events']
+            return yaml.safe_load(stream)['events']
 
     def authenticate(self):
         reddit = praw.Reddit(
@@ -65,15 +65,21 @@ class Bot:
 
     def scan(self):
         for event in self.config.keys():
-            print(event)
+            print('searching on event', event)
             self.event = self.config[event]
-            flat_subreddits = list(
-                itertools.chain.from_iterable(self.event['subreddits']))
-            for sub in flat_subreddits:
-                subreddit = self.reddit.subreddit(sub).new(limit=300)
-                for submission in subreddit:
-                    self.process_submission(submission)
-            print('total comments for bot run', self.comments_for_run)
+            subreddits = self.event['subreddits']
+            if subreddits[0] is not None:
+                print('running')
+                flat_subreddits = list(
+                    itertools.chain.from_iterable(subreddits)
+                )
+                for sub in flat_subreddits:
+                    subreddit = self.reddit.subreddit(sub).new(limit=300)
+                    for submission in subreddit:
+                        self.process_submission(submission)
+                print('total comments for bot run', self.comments_for_run)
+            else:
+                print('could not find any matches')
 
     def process_submission(self, post):
         title = post.title.lower()
